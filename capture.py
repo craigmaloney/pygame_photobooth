@@ -10,6 +10,7 @@ ATTRACT_MODE = USEREVENT + 3
 RESOLUTION = (640, 480)
 OFFSCREEN = (800, 480)
 
+
 class Counter(pygame.sprite.Sprite):
 
     def __init__(self):
@@ -91,6 +92,26 @@ class Flash(pygame.sprite.Sprite):
             self.kill()
 
 
+class LastImage(pygame.sprite.Sprite):
+
+    def __init__(self, image):
+        pygame.sprite.Sprite.__init__(self, self.containers)
+
+        self.countdown = 255
+        new_image = pygame.transform.smoothscale(image, (640 / 4, 480 / 4))
+        self.image = new_image
+        self.image.set_alpha(self.countdown)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = ((0, 0))
+
+    def update(self):
+        if self.countdown >= 0:
+            self.image.set_alpha(self.countdown)
+            self.countdown = self.countdown - .1
+        else:
+            self.kill()
+
+
 class Capture(object):
     def __init__(self):
         self.size = RESOLUTION
@@ -122,10 +143,11 @@ class Capture(object):
         pygame.display.update(dirty)
         pygame.display.flip()
 
-    def take_snapshot(self, all):
+    def take_snapshot(self):
         filename = "screenshot_{datetime}.jpg".format(
             datetime=datetime.now().strftime('%s.%f'))
         pygame.image.save(self.display, filename)
+        return self.display
 
     def main(self):
         going = True
@@ -133,14 +155,17 @@ class Capture(object):
         counter = pygame.sprite.Group()
         flash = pygame.sprite.Group()
         status = pygame.sprite.Group()
+        last_image = pygame.sprite.Group()
         all = pygame.sprite.OrderedUpdates()
 
         Counter.containers = all, counter
+        LastImage.containers = all, last_image
         Flash.containers = all, flash
         Status.containers = all, status
 
         countdown = Counter()
         status = Status()
+
         while going:
             events = pygame.event.get()
             for e in events:
@@ -156,21 +181,25 @@ class Capture(object):
 
                 # Flash photo
                 if (e.type == SNAPSHOT):
+                    # Fake a last_image group collision to kill the last image sprite
+                    pygame.sprite.groupcollide(last_image, last_image, True, True)
+
                     status.hide()
                     self.get_and_flip(all)
-                    self.take_snapshot(all)
+                    prev_image = self.take_snapshot()
                     Flash()
                     pygame.time.set_timer(NINJA_SNAPSHOT, 1000)
 
                 # Ninja photo
                 if (e.type == NINJA_SNAPSHOT):
-                    self.take_snapshot(all)
+                    ninja_image = self.take_snapshot()
                     pygame.time.set_timer(NINJA_SNAPSHOT, 0)
                     pygame.time.set_timer(ATTRACT_MODE, 1000)
 
                 # Start up Attract Mode
                 if (e.type == ATTRACT_MODE):
                     status.attract()
+                    LastImage(prev_image)
                     pygame.time.set_timer(ATTRACT_MODE, 0)
 
             self.get_and_flip(all)
