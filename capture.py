@@ -74,15 +74,16 @@ class Flash(pygame.sprite.Sprite):
         self.countdown = 255
         pygame.sprite.Sprite.__init__(self, self.containers)
 
-        self.color = [255, 255, 255]
+        self.color = (255, 255, 255, 128)
         self.image = pygame.Surface(RESOLUTION, SRCALPHA)
         self.image.fill(self.color)
+        self.image.set_alpha(self.countdown)
         self.rect = self.image.get_rect()
         self.rect.topleft = ((0, 0))
 
     def update(self):
         if self.countdown >= 0:
-            self.color = [self.countdown, self.countdown, self.countdown]
+            self.color = (255,255,255,self.countdown)
             self.image.fill(self.color)
             self.image.set_alpha(self.countdown)
             self.countdown = self.countdown - 10
@@ -94,7 +95,7 @@ class Capture(object):
     def __init__(self):
         self.size = RESOLUTION
         # create a display surface. standard pygame stuff
-        self.display = pygame.display.set_mode(self.size, 0)
+        self.display = pygame.display.set_mode(self.size, DOUBLEBUF | HWSURFACE)
 
         # this is the same as what we saw before
         self.clist = pygame.camera.list_cameras()
