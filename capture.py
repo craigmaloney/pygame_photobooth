@@ -6,6 +6,9 @@ from datetime import datetime
 TIMER_TICK = USEREVENT
 SNAPSHOT = USEREVENT + 1
 NINJA_SNAPSHOT = USEREVENT + 2
+ATTRACT_MODE = USEREVENT + 3
+RESOLUTION = (640, 480)
+OFFSCREEN = (800, 480)
 
 class Counter(pygame.sprite.Sprite):
 
@@ -15,7 +18,7 @@ class Counter(pygame.sprite.Sprite):
         self.seconds = 0
         self.image = pygame.Surface([200, 200])
         self.rect = self.image.get_rect()
-        self.rect.center = ((800, 150))
+        self.rect.center = (OFFSCREEN)
 
     def update(self):
         self.font = pygame.font.Font(('./ws_simple_gallifreyan.ttf'), 160)
@@ -37,8 +40,32 @@ class Counter(pygame.sprite.Sprite):
             pygame.time.set_timer(TIMER_TICK, 0)
             self.countdown_in_progress = False
             self.seconds = 0
-            self.rect.center = ((800, 150))
+            self.rect.center = (OFFSCREEN)
             pygame.event.post(pygame.event.Event(SNAPSHOT))
+
+
+class Status(pygame.sprite.Sprite):
+
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self, self.containers)
+        self.image = pygame.Surface([200, 200])
+        self.rect = self.image.get_rect()
+        self.original_position = (640, 600)
+        self.rect.bottomright = (self.original_position)
+
+    def update(self):
+        text = datetime.now().strftime("%s")
+        self.font = pygame.font.Font(('./ws_simple_gallifreyan.ttf'), 20)
+        base = self.font.render(str(text), 1, (0, 0, 0))
+        self.image = base
+        top = self.font.render(str(text), 1, (0x66, 0x88, 0xbb))
+        self.image.blit(top, (-1, -1))
+
+    def attract(self):
+        self.rect.bottomright = (self.original_position)
+
+    def hide(self):
+        self.rect.topleft = (OFFSCREEN)
 
 
 class Flash(pygame.sprite.Sprite):
@@ -48,7 +75,7 @@ class Flash(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self, self.containers)
 
         self.color = [255, 255, 255]
-        self.image = pygame.Surface([640, 480], SRCALPHA)
+        self.image = pygame.Surface(RESOLUTION, SRCALPHA)
         self.image.fill(self.color)
         self.rect = self.image.get_rect()
         self.rect.topleft = ((0, 0))
@@ -65,7 +92,7 @@ class Flash(pygame.sprite.Sprite):
 
 class Capture(object):
     def __init__(self):
-        self.size = (640, 480)
+        self.size = RESOLUTION
         # create a display surface. standard pygame stuff
         self.display = pygame.display.set_mode(self.size, 0)
 
@@ -94,7 +121,7 @@ class Capture(object):
         pygame.display.update(dirty)
         pygame.display.flip()
 
-    def take_snapshot(self):
+    def take_snapshot(self, all):
         filename = "screenshot_{datetime}.jpg".format(
             datetime=datetime.now().strftime('%s.%f'))
         pygame.image.save(self.display, filename)
@@ -104,12 +131,15 @@ class Capture(object):
 
         counter = pygame.sprite.Group()
         flash = pygame.sprite.Group()
+        status = pygame.sprite.Group()
         all = pygame.sprite.OrderedUpdates()
 
         Counter.containers = all, counter
         Flash.containers = all, flash
+        Status.containers = all, status
 
         countdown = Counter()
+        status = Status()
         while going:
             events = pygame.event.get()
             for e in events:
@@ -125,14 +155,22 @@ class Capture(object):
 
                 # Flash photo
                 if (e.type == SNAPSHOT):
-                    self.take_snapshot()
+                    status.hide()
+                    self.get_and_flip(all)
+                    self.take_snapshot(all)
                     Flash()
                     pygame.time.set_timer(NINJA_SNAPSHOT, 1000)
 
                 # Ninja photo
                 if (e.type == NINJA_SNAPSHOT):
-                    self.take_snapshot()
+                    self.take_snapshot(all)
                     pygame.time.set_timer(NINJA_SNAPSHOT, 0)
+                    pygame.time.set_timer(ATTRACT_MODE, 1000)
+
+                # Start up Attract Mode
+                if (e.type == ATTRACT_MODE):
+                    status.attract()
+                    pygame.time.set_timer(ATTRACT_MODE, 0)
 
             self.get_and_flip(all)
 
