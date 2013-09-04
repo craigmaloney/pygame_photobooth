@@ -51,7 +51,7 @@ class Status(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.image = pygame.Surface([200, 200])
         self.rect = self.image.get_rect()
-        self.original_position = (640, 600)
+        self.original_position = (640, 630)
         self.rect.bottomright = (self.original_position)
 
     def update(self):
@@ -111,6 +111,32 @@ class LastImage(pygame.sprite.Sprite):
         else:
             self.kill()
 
+class ConsoleOverlay(pygame.sprite.Sprite):
+
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self, self.containers)
+
+        self.alpha_channel = 60
+        self.counter = 0
+        console_image = \
+            pygame.image.load(
+                'TARDIS_Monitor_Wallpaper_by_Girl_on_the_Moon_overlay.png').convert()
+        self.image = pygame.transform.smoothscale(
+                console_image, (RESOLUTION))
+        
+        self.image.set_alpha(self.alpha_channel)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = ((0, 0))
+
+    def update(self):
+        pass
+
+    def hide(self):
+        self.rect.topleft = (OFFSCREEN)
+
+    def attract(self):
+        self.rect.topleft = ((0, 0))
+        
 
 class Capture(object):
     def __init__(self):
@@ -156,15 +182,18 @@ class Capture(object):
         flash = pygame.sprite.Group()
         status = pygame.sprite.Group()
         last_image = pygame.sprite.Group()
+        console_overlay = pygame.sprite.Group()
         all = pygame.sprite.OrderedUpdates()
 
         Counter.containers = all, counter
         LastImage.containers = all, last_image
         Flash.containers = all, flash
         Status.containers = all, status
+        ConsoleOverlay.containers = all, console_overlay
 
         countdown = Counter()
         status = Status()
+        console = ConsoleOverlay()
 
         while going:
             events = pygame.event.get()
@@ -174,6 +203,7 @@ class Capture(object):
                     self.cam.stop()
                     going = False
                 if (e.type == KEYDOWN and e.key == K_SPACE):
+                    console.hide()
                     countdown.initialize_snapshot()
 
                 if (e.type == TIMER_TICK):
@@ -199,6 +229,7 @@ class Capture(object):
                 # Start up Attract Mode
                 if (e.type == ATTRACT_MODE):
                     status.attract()
+                    console.attract()
                     LastImage(prev_image)
                     pygame.time.set_timer(ATTRACT_MODE, 0)
 
