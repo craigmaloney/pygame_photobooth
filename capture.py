@@ -147,6 +147,8 @@ class Capture(object):
         self.display = pygame.display.set_mode(
             self.size, DOUBLEBUF | HWSURFACE | FULLSCREEN)
 
+        pygame.mouse.set_visible(False)
+
         # this is the same as what we saw before
         self.clist = pygame.camera.list_cameras()
         if not self.clist:
