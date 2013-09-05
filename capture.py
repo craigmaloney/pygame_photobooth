@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import pygame
 import pygame.camera
 from pygame.locals import *
@@ -8,7 +10,7 @@ SNAPSHOT = USEREVENT + 1
 NINJA_SNAPSHOT = USEREVENT + 2
 ATTRACT_MODE = USEREVENT + 3
 RESOLUTION = (640, 480)
-OFFSCREEN = (800, 480)
+OFFSCREEN = (1100, 480)
 
 
 class Counter(pygame.sprite.Sprite):
@@ -51,7 +53,7 @@ class Status(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.image = pygame.Surface([200, 200])
         self.rect = self.image.get_rect()
-        self.original_position = (640, 630)
+        self.original_position = ((640, 640))
         self.rect.bottomright = (self.original_position)
 
     def update(self):
@@ -142,7 +144,8 @@ class Capture(object):
     def __init__(self):
         self.size = RESOLUTION
         # create a display surface. standard pygame stuff
-        self.display = pygame.display.set_mode(self.size, DOUBLEBUF | HWSURFACE)
+        self.display = pygame.display.set_mode(
+            self.size, DOUBLEBUF | HWSURFACE | FULLSCREEN)
 
         # this is the same as what we saw before
         self.clist = pygame.camera.list_cameras()
