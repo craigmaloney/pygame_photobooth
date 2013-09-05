@@ -9,8 +9,8 @@ TIMER_TICK = USEREVENT
 SNAPSHOT = USEREVENT + 1
 NINJA_SNAPSHOT = USEREVENT + 2
 ATTRACT_MODE = USEREVENT + 3
-RESOLUTION = (640, 480)
-OFFSCREEN = (1100, 480)
+RESOLUTION = (1280, 720)
+OFFSCREEN = (1400, 480)
 
 
 class Counter(pygame.sprite.Sprite):
@@ -24,7 +24,7 @@ class Counter(pygame.sprite.Sprite):
         self.rect.center = (OFFSCREEN)
 
     def update(self):
-        self.font = pygame.font.Font(('./ws_simple_gallifreyan.ttf'), 160)
+        self.font = pygame.font.Font(('./ws_simple_gallifreyan.ttf'), 240)
         base = self.font.render(str(self.seconds), 1, (0, 0, 0))
         self.image = base
         top = self.font.render(str(self.seconds), 1, (0x66, 0x88, 0xbb))
@@ -35,7 +35,7 @@ class Counter(pygame.sprite.Sprite):
             self.countdown_in_progress = True
             pygame.time.set_timer(TIMER_TICK, 1000)
             self.seconds = 3
-            self.rect.center = ((350, 150))
+            self.rect.center = ((650, 150))
 
     def countdown(self):
         self.seconds = self.seconds - 1
@@ -53,12 +53,12 @@ class Status(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.image = pygame.Surface([200, 200])
         self.rect = self.image.get_rect()
-        self.original_position = ((640, 640))
+        self.original_position = ((700, 200))
         self.rect.bottomright = (self.original_position)
 
     def update(self):
         text = datetime.now().strftime("%s")
-        self.font = pygame.font.Font(('./ws_simple_gallifreyan.ttf'), 20)
+        self.font = pygame.font.Font(('./ws_simple_gallifreyan.ttf'), 40)
         base = self.font.render(str(text), 1, (0, 0, 0))
         self.image = base
         top = self.font.render(str(text), 1, (0x66, 0x88, 0xbb))
