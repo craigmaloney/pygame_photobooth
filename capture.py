@@ -5,15 +5,23 @@ import pygame.camera
 from pygame.locals import *
 from datetime import datetime
 import serial
+import random
 
 TIMER_TICK = USEREVENT
 SNAPSHOT = USEREVENT + 1
 NINJA_SNAPSHOT = USEREVENT + 2
 ATTRACT_MODE = USEREVENT + 3
 ARDUINO_PRESS = USEREVENT + 4
+TARDIS_NOISE = USEREVENT + 5
 RESOLUTION = (1280, 720)
 OFFSCREEN = (1400, 480)
 SERIAL_PORT = "/dev/ttyUSB1"
+
+
+def set_tardis_noise_timer():
+    tardis_delay = random.randint(60 * 1000, 500 * 1000)
+    print tardis_delay
+    pygame.time.set_timer(TARDIS_NOISE, tardis_delay)
 
 
 class Counter(pygame.sprite.Sprite):
@@ -103,7 +111,10 @@ class LastImage(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self, self.containers)
 
         self.countdown = 255
-        new_image = pygame.transform.smoothscale(image, (640 / 4, 480 / 4))
+        resx, resy = RESOLUTION
+        scale_x = resx / 4
+        scale_y = resy / 4
+        new_image = pygame.transform.smoothscale(image, (scale_x, scale_y))
         self.image = new_image
         self.image.set_alpha(self.countdown)
         self.rect = self.image.get_rect()
@@ -178,8 +189,9 @@ class Capture(object):
     def take_snapshot(self):
         filename = "screenshot_{datetime}.jpg".format(
             datetime=datetime.now().strftime('%s.%f'))
-        pygame.image.save(self.display, filename)
-        return self.display
+        snapshot = self.display.copy()
+        pygame.image.save(snapshot, filename)
+        return snapshot
 
     def main(self):
         going = True
@@ -202,6 +214,8 @@ class Capture(object):
         console = ConsoleOverlay()
         serial_port = serial.Serial(SERIAL_PORT, 9600)
 
+        set_tardis_noise_timer()
+
         while going:
             if serial_port.inWaiting() > 0:
                 serial_input = serial_port.readline().strip()
@@ -216,6 +230,9 @@ class Capture(object):
                     going = False
                 if (e.type == ARDUINO_PRESS) or \
                         (e.type == KEYDOWN and e.key == K_SPACE):
+                    sound1 = pygame.mixer.Sound('countdown.wav')
+                    chan1 = pygame.mixer.find_channel()
+                    chan1.queue(sound1)
                     console.hide()
                     countdown.initialize_snapshot()
 
@@ -246,10 +263,17 @@ class Capture(object):
                     LastImage(prev_image)
                     pygame.time.set_timer(ATTRACT_MODE, 0)
 
+                if (e.type == TARDIS_NOISE):
+                    sound2 = pygame.mixer.Sound('tardis.wav')
+                    chan2 = pygame.mixer.find_channel()
+                    chan2.queue(sound2)
+                    set_tardis_noise_timer()
+
             self.get_and_flip(all)
 
 if __name__ == "__main__":
     pygame.init()
+    pygame.mixer.init(frequency=44100,size=-16,channels=4)
     pygame.camera.init()
     a = Capture()
     a.main()
