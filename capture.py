@@ -4,13 +4,16 @@ import pygame
 import pygame.camera
 from pygame.locals import *
 from datetime import datetime
+import serial
 
 TIMER_TICK = USEREVENT
 SNAPSHOT = USEREVENT + 1
 NINJA_SNAPSHOT = USEREVENT + 2
 ATTRACT_MODE = USEREVENT + 3
+ARDUINO_PRESS = USEREVENT + 4
 RESOLUTION = (1280, 720)
 OFFSCREEN = (1400, 480)
+SERIAL_PORT = "/dev/ttyUSB1"
 
 
 class Counter(pygame.sprite.Sprite):
@@ -145,7 +148,7 @@ class Capture(object):
         self.size = RESOLUTION
         # create a display surface. standard pygame stuff
         self.display = pygame.display.set_mode(
-            self.size, DOUBLEBUF | HWSURFACE | FULLSCREEN)
+            self.size, DOUBLEBUF | HWSURFACE )
 
         # this is the same as what we saw before
         self.clist = pygame.camera.list_cameras()
@@ -197,15 +200,22 @@ class Capture(object):
         countdown = Counter()
         status = Status()
         console = ConsoleOverlay()
+        serial_port = serial.Serial(SERIAL_PORT, 9600)
 
         while going:
+            if serial_port.inWaiting() > 0:
+                serial_input = serial_port.readline().strip()
+                if serial_input == "Pressed!":
+                    pygame.event.post(pygame.event.Event(ARDUINO_PRESS))
+
             events = pygame.event.get()
             for e in events:
                 if e.type == QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
                     # close the camera safely
                     self.cam.stop()
                     going = False
-                if (e.type == KEYDOWN and e.key == K_SPACE):
+                if (e.type == ARDUINO_PRESS) or \
+                        (e.type == KEYDOWN and e.key == K_SPACE):
                     console.hide()
                     countdown.initialize_snapshot()
 
