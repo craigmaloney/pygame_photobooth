@@ -22,7 +22,6 @@ PHOTO_DIRECTORY = "/tmp"
 
 def set_tardis_noise_timer():
     tardis_delay = random.randint(60 * 1000, 500 * 1000)
-    print tardis_delay
     pygame.time.set_timer(TARDIS_NOISE, tardis_delay)
 
 
@@ -64,6 +63,7 @@ class Status(pygame.sprite.Sprite):
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self, self.containers)
+
         self.image = pygame.Surface([200, 200])
         self.rect = self.image.get_rect()
         self.original_position = ((700, 200))
@@ -134,7 +134,9 @@ class ConsoleOverlay(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self, self.containers)
 
-        self.alpha_channel = 60
+        self.current_alpha_channel = 0
+        self.max_alpha_channel = 60
+        self.dest_alpha_channel = self.max_alpha_channel
         self.counter = 0
         console_image = \
             pygame.image.load(
@@ -142,18 +144,21 @@ class ConsoleOverlay(pygame.sprite.Sprite):
         self.image = pygame.transform.smoothscale(
                 console_image, (RESOLUTION))
         
-        self.image.set_alpha(self.alpha_channel)
         self.rect = self.image.get_rect()
         self.rect.topleft = ((0, 0))
 
     def update(self):
-        pass
+        if self.current_alpha_channel < self.dest_alpha_channel:
+            self.current_alpha_channel += 1
+        if self.current_alpha_channel >= self.dest_alpha_channel:
+            self.current_alpha_channel -= 1
+        self.image.set_alpha(self.current_alpha_channel)
 
     def hide(self):
-        self.rect.topleft = (OFFSCREEN)
+        self.dest_alpha_channel = 0
 
     def attract(self):
-        self.rect.topleft = ((0, 0))
+        self.dest_alpha_channel = self.max_alpha_channel
         
 
 class Capture(object):
