@@ -17,6 +17,7 @@ TARDIS_NOISE = USEREVENT + 5
 RESOLUTION = (1280, 720)
 OFFSCREEN = (1400, 480)
 SERIAL_PORT = "/dev/ttyUSB1"
+SERIAL_BUTTON = True
 
 PHOTO_DIRECTORY = "/tmp"
 
@@ -134,6 +135,7 @@ class ConsoleOverlay(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self, self.containers)
 
+        self.hideme = False
         self.current_alpha_channel = 0
         self.max_alpha_channel = 60
         self.dest_alpha_channel = self.max_alpha_channel
@@ -148,16 +150,20 @@ class ConsoleOverlay(pygame.sprite.Sprite):
         self.rect.topleft = ((0, 0))
 
     def update(self):
-        if self.current_alpha_channel < self.dest_alpha_channel:
+        if self.hideme is False and \
+                self.current_alpha_channel <= self.dest_alpha_channel:
             self.current_alpha_channel += 1
-        if self.current_alpha_channel >= self.dest_alpha_channel:
+        if self.hideme is True and \
+                self.current_alpha_channel > self.dest_alpha_channel:
             self.current_alpha_channel -= 1
         self.image.set_alpha(self.current_alpha_channel)
 
     def hide(self):
+        self.hideme = True
         self.dest_alpha_channel = 0
 
     def attract(self):
+        self.hideme = False
         self.dest_alpha_channel = self.max_alpha_channel
         
 
@@ -166,7 +172,7 @@ class Capture(object):
         self.size = RESOLUTION
         # create a display surface. standard pygame stuff
         self.display = pygame.display.set_mode(
-            self.size, DOUBLEBUF | HWSURFACE )
+            self.size, DOUBLEBUF | HWSURFACE | FULLSCREEN)
 
         # this is the same as what we saw before
         self.clist = pygame.camera.list_cameras()
@@ -220,15 +226,18 @@ class Capture(object):
         countdown = Counter()
         status = Status()
         console = ConsoleOverlay()
-        serial_port = serial.Serial(SERIAL_PORT, 9600)
+        if SERIAL_BUTTON:
+            serial_port = serial.Serial(SERIAL_PORT, 9600)
 
         set_tardis_noise_timer()
+        countdown_in_progress = False
 
         while going:
-            if serial_port.inWaiting() > 0:
-                serial_input = serial_port.readline().strip()
-                if serial_input == "Pressed!":
-                    pygame.event.post(pygame.event.Event(ARDUINO_PRESS))
+            if SERIAL_BUTTON:
+                if serial_port.inWaiting() > 0:
+                    serial_input = serial_port.readline().strip()
+                    if serial_input == "Pressed!":
+                        pygame.event.post(pygame.event.Event(ARDUINO_PRESS))
 
             events = pygame.event.get()
             for e in events:
@@ -238,11 +247,13 @@ class Capture(object):
                     going = False
                 if (e.type == ARDUINO_PRESS) or \
                         (e.type == KEYDOWN and e.key == K_SPACE):
-                    sound1 = pygame.mixer.Sound('countdown.wav')
-                    chan1 = pygame.mixer.find_channel()
-                    chan1.queue(sound1)
-                    console.hide()
-                    countdown.initialize_snapshot()
+                    if (countdown_in_progress is False):
+                        countdown_in_progress = True
+                        sound1 = pygame.mixer.Sound('countdown.wav')
+                        chan1 = pygame.mixer.find_channel()
+                        chan1.queue(sound1)
+                        console.hide()
+                        countdown.initialize_snapshot()
 
                 if (e.type == TIMER_TICK):
                     countdown.countdown()
@@ -270,6 +281,7 @@ class Capture(object):
                     console.attract()
                     LastImage(prev_image)
                     pygame.time.set_timer(ATTRACT_MODE, 0)
+                    countdown_in_progress = False
 
                 if (e.type == TARDIS_NOISE):
                     sound2 = pygame.mixer.Sound('tardis.wav')
