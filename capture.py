@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import pygame
 import pygame.camera
 from pygame.locals import *
@@ -17,6 +18,7 @@ RESOLUTION = (1280, 720)
 OFFSCREEN = (1400, 480)
 SERIAL_PORT = "/dev/ttyUSB1"
 
+PHOTO_DIRECTORY = "/tmp"
 
 def set_tardis_noise_timer():
     tardis_delay = random.randint(60 * 1000, 500 * 1000)
@@ -189,8 +191,9 @@ class Capture(object):
     def take_snapshot(self):
         filename = "screenshot_{datetime}.jpg".format(
             datetime=datetime.now().strftime('%s.%f'))
+        filename_path = os.path.join(PHOTO_DIRECTORY, filename)
         snapshot = self.display.copy()
-        pygame.image.save(snapshot, filename)
+        pygame.image.save(snapshot, filename_path)
         return snapshot
 
     def main(self):
