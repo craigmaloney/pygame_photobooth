@@ -8,18 +8,20 @@ from datetime import datetime
 import serial
 import random
 
+# Configuration Variables
+RESOLUTION = (1280, 720)
+OFFSCREEN = (1400, 480)
+SERIAL_PORT = "/dev/ttyUSB1"
+SERIAL_BUTTON = True
+PHOTO_DIRECTORY = "./photos"
+
+
 TIMER_TICK = USEREVENT
 SNAPSHOT = USEREVENT + 1
 NINJA_SNAPSHOT = USEREVENT + 2
 ATTRACT_MODE = USEREVENT + 3
 ARDUINO_PRESS = USEREVENT + 4
 TARDIS_NOISE = USEREVENT + 5
-RESOLUTION = (1280, 720)
-OFFSCREEN = (1400, 480)
-SERIAL_PORT = "/dev/ttyUSB1"
-SERIAL_BUTTON = True
-
-PHOTO_DIRECTORY = "/tmp"
 
 def set_tardis_noise_timer():
     tardis_delay = random.randint(60 * 1000, 500 * 1000)
