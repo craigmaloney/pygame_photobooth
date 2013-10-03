@@ -105,7 +105,7 @@ class Flash(pygame.sprite.Sprite):
             self.color = (255,255,255,self.countdown)
             self.image.fill(self.color)
             self.image.set_alpha(self.countdown)
-            self.countdown = self.countdown - 10
+            self.countdown = self.countdown - 20
         else:
             self.kill()
 
@@ -210,6 +210,7 @@ class Capture(object):
         return snapshot
 
     def main(self):
+        clock = pygame.time.Clock()
         going = True
 
         counter = pygame.sprite.Group()
@@ -292,6 +293,10 @@ class Capture(object):
                     set_tardis_noise_timer()
 
             self.get_and_flip(all)
+            clock.tick(30)
+
+# Debugging: See how many FPS we're getting
+            print clock.get_fps()
 
 if __name__ == "__main__":
     pygame.init()
