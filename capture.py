@@ -12,7 +12,7 @@ import random
 RESOLUTION = (1280, 720)
 OFFSCREEN = (1400, 480)
 SERIAL_PORT = "/dev/ttyUSB1"
-SERIAL_BUTTON = True
+SERIAL_BUTTON = False
 PHOTO_DIRECTORY = "./photos"
 
 
@@ -182,7 +182,7 @@ class Capture(object):
         self.clist = pygame.camera.list_cameras()
         if not self.clist:
             raise ValueError("Sorry, no cameras detected.")
-        self.cam = pygame.camera.Camera(self.clist[0], self.size)
+        self.cam = pygame.camera.Camera(self.clist[1], self.size)
         self.cam.start()
 
         # create a surface to capture to.  for performance purposes
@@ -248,7 +248,6 @@ class Capture(object):
             for e in events:
                 if e.type == QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
                     # close the camera safely
-                    self.cam.stop()
                     going = False
                 if (e.type == ARDUINO_PRESS) or \
                         (e.type == KEYDOWN and e.key == K_SPACE):
@@ -297,8 +296,9 @@ class Capture(object):
             self.get_and_flip(all)
             clock.tick(30)
 
-# Debugging: See how many FPS we're getting
-            print clock.get_fps()
+        # No longer going. Stop everything
+        self.cam.stop()
+        pygame.quit()
 
 if __name__ == "__main__":
     pygame.init()
