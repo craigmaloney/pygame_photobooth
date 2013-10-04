@@ -1,16 +1,31 @@
 #!/usr/bin/env python
 
+import os
 import pygame
 import pygame.camera
 from pygame.locals import *
 from datetime import datetime
+import serial
+import random
+
+# Configuration Variables
+RESOLUTION = (1280, 720)
+OFFSCREEN = (1400, 480)
+SERIAL_PORT = "/dev/ttyUSB1"
+SERIAL_BUTTON = True
+PHOTO_DIRECTORY = "./photos"
+
 
 TIMER_TICK = USEREVENT
 SNAPSHOT = USEREVENT + 1
 NINJA_SNAPSHOT = USEREVENT + 2
 ATTRACT_MODE = USEREVENT + 3
-RESOLUTION = (640, 480)
-OFFSCREEN = (1100, 480)
+ARDUINO_PRESS = USEREVENT + 4
+TARDIS_NOISE = USEREVENT + 5
+
+def set_tardis_noise_timer():
+    tardis_delay = random.randint(60 * 1000, 500 * 1000)
+    pygame.time.set_timer(TARDIS_NOISE, tardis_delay)
 
 
 class Counter(pygame.sprite.Sprite):
@@ -24,7 +39,7 @@ class Counter(pygame.sprite.Sprite):
         self.rect.center = (OFFSCREEN)
 
     def update(self):
-        self.font = pygame.font.Font(('./ws_simple_gallifreyan.ttf'), 160)
+        self.font = pygame.font.Font(('./ws_simple_gallifreyan.ttf'), 240)
         base = self.font.render(str(self.seconds), 1, (0, 0, 0))
         self.image = base
         top = self.font.render(str(self.seconds), 1, (0x66, 0x88, 0xbb))
@@ -35,7 +50,7 @@ class Counter(pygame.sprite.Sprite):
             self.countdown_in_progress = True
             pygame.time.set_timer(TIMER_TICK, 1000)
             self.seconds = 3
-            self.rect.center = ((350, 150))
+            self.rect.center = ((650, 150))
 
     def countdown(self):
         self.seconds = self.seconds - 1
@@ -51,14 +66,15 @@ class Status(pygame.sprite.Sprite):
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self, self.containers)
+
         self.image = pygame.Surface([200, 200])
         self.rect = self.image.get_rect()
-        self.original_position = ((640, 640))
+        self.original_position = ((700, 200))
         self.rect.bottomright = (self.original_position)
 
     def update(self):
         text = datetime.now().strftime("%s")
-        self.font = pygame.font.Font(('./ws_simple_gallifreyan.ttf'), 20)
+        self.font = pygame.font.Font(('./ws_simple_gallifreyan.ttf'), 40)
         base = self.font.render(str(text), 1, (0, 0, 0))
         self.image = base
         top = self.font.render(str(text), 1, (0x66, 0x88, 0xbb))
@@ -89,7 +105,7 @@ class Flash(pygame.sprite.Sprite):
             self.color = (255,255,255,self.countdown)
             self.image.fill(self.color)
             self.image.set_alpha(self.countdown)
-            self.countdown = self.countdown - 10
+            self.countdown = self.countdown - 20
         else:
             self.kill()
 
@@ -100,7 +116,10 @@ class LastImage(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self, self.containers)
 
         self.countdown = 255
-        new_image = pygame.transform.smoothscale(image, (640 / 4, 480 / 4))
+        resx, resy = RESOLUTION
+        scale_x = resx / 4
+        scale_y = resy / 4
+        new_image = pygame.transform.smoothscale(image, (scale_x, scale_y))
         self.image = new_image
         self.image.set_alpha(self.countdown)
         self.rect = self.image.get_rect()
@@ -118,7 +137,10 @@ class ConsoleOverlay(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self, self.containers)
 
-        self.alpha_channel = 60
+        self.hideme = False
+        self.current_alpha_channel = 0
+        self.max_alpha_channel = 60
+        self.dest_alpha_channel = self.max_alpha_channel
         self.counter = 0
         console_image = \
             pygame.image.load(
@@ -126,18 +148,25 @@ class ConsoleOverlay(pygame.sprite.Sprite):
         self.image = pygame.transform.smoothscale(
                 console_image, (RESOLUTION))
         
-        self.image.set_alpha(self.alpha_channel)
         self.rect = self.image.get_rect()
         self.rect.topleft = ((0, 0))
 
     def update(self):
-        pass
+        if self.hideme is False and \
+                self.current_alpha_channel <= self.dest_alpha_channel:
+            self.current_alpha_channel += 1
+        if self.hideme is True and \
+                self.current_alpha_channel > self.dest_alpha_channel:
+            self.current_alpha_channel -= 1
+        self.image.set_alpha(self.current_alpha_channel)
 
     def hide(self):
-        self.rect.topleft = (OFFSCREEN)
+        self.hideme = True
+        self.dest_alpha_channel = 0
 
     def attract(self):
-        self.rect.topleft = ((0, 0))
+        self.hideme = False
+        self.dest_alpha_channel = self.max_alpha_channel
         
 
 class Capture(object):
@@ -177,10 +206,13 @@ class Capture(object):
     def take_snapshot(self):
         filename = "screenshot_{datetime}.jpg".format(
             datetime=datetime.now().strftime('%s.%f'))
-        pygame.image.save(self.display, filename)
-        return self.display
+        filename_path = os.path.join(PHOTO_DIRECTORY, filename)
+        snapshot = self.display.copy()
+        pygame.image.save(snapshot, filename_path)
+        return snapshot
 
     def main(self):
+        clock = pygame.time.Clock()
         going = True
 
         counter = pygame.sprite.Group()
@@ -199,17 +231,34 @@ class Capture(object):
         countdown = Counter()
         status = Status()
         console = ConsoleOverlay()
+        if SERIAL_BUTTON:
+            serial_port = serial.Serial(SERIAL_PORT, 9600)
+
+        set_tardis_noise_timer()
+        countdown_in_progress = False
 
         while going:
+            if SERIAL_BUTTON:
+                if serial_port.inWaiting() > 0:
+                    serial_input = serial_port.readline().strip()
+                    if serial_input == "Pressed!":
+                        pygame.event.post(pygame.event.Event(ARDUINO_PRESS))
+
             events = pygame.event.get()
             for e in events:
                 if e.type == QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
                     # close the camera safely
                     self.cam.stop()
                     going = False
-                if (e.type == KEYDOWN and e.key == K_SPACE):
-                    console.hide()
-                    countdown.initialize_snapshot()
+                if (e.type == ARDUINO_PRESS) or \
+                        (e.type == KEYDOWN and e.key == K_SPACE):
+                    if (countdown_in_progress is False):
+                        countdown_in_progress = True
+                        sound1 = pygame.mixer.Sound('countdown.wav')
+                        chan1 = pygame.mixer.find_channel()
+                        chan1.queue(sound1)
+                        console.hide()
+                        countdown.initialize_snapshot()
 
                 if (e.type == TIMER_TICK):
                     countdown.countdown()
@@ -237,11 +286,23 @@ class Capture(object):
                     console.attract()
                     LastImage(prev_image)
                     pygame.time.set_timer(ATTRACT_MODE, 0)
+                    countdown_in_progress = False
+
+                if (e.type == TARDIS_NOISE):
+                    sound2 = pygame.mixer.Sound('tardis.wav')
+                    chan2 = pygame.mixer.find_channel()
+                    chan2.queue(sound2)
+                    set_tardis_noise_timer()
 
             self.get_and_flip(all)
+            clock.tick(30)
+
+# Debugging: See how many FPS we're getting
+            print clock.get_fps()
 
 if __name__ == "__main__":
     pygame.init()
+    pygame.mixer.init(frequency=44100,size=-16,channels=4)
     pygame.camera.init()
     a = Capture()
     a.main()
