@@ -38,7 +38,7 @@ int counter = 0;
   
 void setup() {
   Serial.begin(9600); 
-  Serial.println("Arduno up");
+  Serial.println("Arduino up");
   // initialize the LED pin as an output:
   pinMode(ledPin, OUTPUT);      
   // initialize the pushbutton pin as an input:
