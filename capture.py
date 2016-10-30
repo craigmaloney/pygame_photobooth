@@ -102,7 +102,7 @@ class Flash(pygame.sprite.Sprite):
 
     def update(self):
         if self.countdown >= 0:
-            self.color = (255,255,255,self.countdown)
+            self.color = (255, 255, 255, self.countdown)
             self.image.fill(self.color)
             self.image.set_alpha(self.countdown)
             self.countdown = self.countdown - 20
@@ -132,6 +132,7 @@ class LastImage(pygame.sprite.Sprite):
         else:
             self.kill()
 
+
 class ConsoleOverlay(pygame.sprite.Sprite):
 
     def __init__(self):
@@ -146,8 +147,8 @@ class ConsoleOverlay(pygame.sprite.Sprite):
             pygame.image.load(
                 'TARDIS_Monitor_Wallpaper_by_Girl_on_the_Moon_overlay.png').convert()
         self.image = pygame.transform.smoothscale(
-                console_image, (RESOLUTION))
-        
+            console_image, (RESOLUTION))
+
         self.rect = self.image.get_rect()
         self.rect.topleft = ((0, 0))
 
@@ -167,7 +168,7 @@ class ConsoleOverlay(pygame.sprite.Sprite):
     def attract(self):
         self.hideme = False
         self.dest_alpha_channel = self.max_alpha_channel
-        
+
 
 class Capture(object):
     def __init__(self):
@@ -264,8 +265,13 @@ class Capture(object):
 
                 # Flash photo
                 if (e.type == SNAPSHOT):
-                    # Fake a last_image group collision to kill the last image sprite
-                    pygame.sprite.groupcollide(last_image, last_image, True, True)
+                    # Fake a last_image group collision to kill the last image
+                    # sprite
+                    pygame.sprite.groupcollide(
+                        last_image,
+                        last_image,
+                        True,
+                        True)
 
                     status.hide()
                     self.get_and_flip(all)
@@ -302,7 +308,10 @@ class Capture(object):
 
 if __name__ == "__main__":
     pygame.init()
-    pygame.mixer.init(frequency=44100,size=-16,channels=4)
+    pygame.mixer.init(
+        frequency=44100,
+        size=-16,
+        channels=4)
     pygame.camera.init()
     a = Capture()
     a.main()
