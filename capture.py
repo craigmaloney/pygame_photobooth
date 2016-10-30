@@ -174,7 +174,7 @@ class Capture(object):
         self.size = RESOLUTION
         # create a display surface. standard pygame stuff
         self.display = pygame.display.set_mode(
-            self.size, DOUBLEBUF | HWSURFACE | FULLSCREEN)
+            self.size, DOUBLEBUF | HWSURFACE | RESIZABLE)
 
         pygame.mouse.set_visible(False)
 
@@ -182,7 +182,7 @@ class Capture(object):
         self.clist = pygame.camera.list_cameras()
         if not self.clist:
             raise ValueError("Sorry, no cameras detected.")
-        self.cam = pygame.camera.Camera(self.clist[1], self.size)
+        self.cam = pygame.camera.Camera(self.clist[0], self.size)
         self.cam.start()
 
         # create a surface to capture to.  for performance purposes
