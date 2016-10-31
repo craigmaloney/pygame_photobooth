@@ -1,0 +1,21 @@
+---
+
+camera_resolution_x: 1280
+camera_resolution_y: 720
+
+offscreen_resolution_x: 1400
+offscreen_resolution_y: 480
+
+serial_button: False
+serial_port: /dev/ttyACM0
+
+photo_directory: "./photos"
+
+fullscreen: True
+
+theme:
+    directory: "./themes/doctorwho"
+    overlay: TARDIS_Monitor_Wallpaper_by_Girl_on_the_Moon_overlay.png
+    attract_sound: tardis.wav
+    font: ws_simple_gallifreyan.ttf
+    countdown_sound: countdown.wav
