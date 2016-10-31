@@ -6,8 +6,8 @@ camera_resolution_y: 720
 offscreen_resolution_x: 1400
 offscreen_resolution_y: 480
 
+serial_button: False
 serial_port: /dev/ttyACM0
-serial_button: True
 
 photo_directory: "./photos"
 

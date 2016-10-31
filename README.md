@@ -16,8 +16,8 @@ The Arduino code sends a "Pressed!" event over the serial port. If you have conf
 The configuration file "config.yaml" has the default values in there for the application:
 * ``camera_resolution_x/y``: The resolution of the camera hooked up
 * ``offscreen_resolution_x/y``: The resolution of the screen
+* ``serial_button``: Whether to check for the serial button or not (default: False will run without the button)
 * ``serial_port``: The port for the Arduino button (/dev/ttyUSB0 or /dev/ttyACM0)
-* ``serial_button``: Whether to check for the serial button or not (False will run without the button)
 * ``photo_directory``: Where to store the photos (default: ./photos)
 * ``fullscreen``: Whether to display fullscreen (default: True)
 * ``theme``: Configuration specific to the theme
