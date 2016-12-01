@@ -16,6 +16,8 @@ fullscreen: True
 max_alpha: 150
 alpha_step: 10
 
+datetime_format: "%F %T"
+
 theme:
     directory: "./themes/peppercarrot"
     overlay: 2016-06-05_pepper-and-carrot_happy-corner-screen_by-David-Revoy.png
