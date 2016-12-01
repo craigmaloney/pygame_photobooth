@@ -1,0 +1,24 @@
+---
+
+camera_resolution_x: 1280
+camera_resolution_y: 720
+
+offscreen_resolution_x: 1400
+offscreen_resolution_y: 480
+
+serial_button: False
+serial_port: /dev/ttyACM0
+
+photo_directory: "./photos"
+
+fullscreen: False
+
+max_alpha: 150
+alpha_step: 10
+
+theme:
+    directory: "./themes/peppercarrot"
+    overlay: 2016-06-05_pepper-and-carrot_happy-corner-screen_by-David-Revoy.png
+    attract_sound: bell2.wav
+    font: ComicSpice.ttf
+    countdown_sound: countdown.wav

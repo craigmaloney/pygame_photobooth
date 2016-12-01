@@ -49,6 +49,10 @@ class Config():
             self.config['photo_directory'])
         self.fullscreen = (
             self.config['fullscreen'])
+        self.max_alpha = (
+            self.config['max_alpha'])
+        self.alpha_step = (
+            self.config['alpha_step'])
         self.theme_directory = (
             self.config['theme']['directory'])
         self.theme_overlay = (
@@ -180,7 +184,7 @@ class ConsoleOverlay(pygame.sprite.Sprite):
 
         self.hideme = False
         self.current_alpha_channel = 0
-        self.max_alpha_channel = 60
+        self.max_alpha_channel = config.max_alpha
         self.dest_alpha_channel = self.max_alpha_channel
         self.counter = 0
         console_image = \
@@ -194,10 +198,10 @@ class ConsoleOverlay(pygame.sprite.Sprite):
     def update(self):
         if self.hideme is False and \
                 self.current_alpha_channel <= self.dest_alpha_channel:
-            self.current_alpha_channel += 1
+            self.current_alpha_channel += config.alpha_step
         if self.hideme is True and \
                 self.current_alpha_channel > self.dest_alpha_channel:
-            self.current_alpha_channel -= 1
+            self.current_alpha_channel -= config.alpha_step
         self.image.set_alpha(self.current_alpha_channel)
 
     def hide(self):

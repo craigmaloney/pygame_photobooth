@@ -13,6 +13,9 @@ photo_directory: "./photos"
 
 fullscreen: True
 
+max_alpha: 100
+alpha_step: 1
+
 theme:
     directory: "./themes/doctorwho"
     overlay: TARDIS_Monitor_Wallpaper_by_Girl_on_the_Moon_overlay.png
