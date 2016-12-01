@@ -1,0 +1,10 @@
+All artwork by David Revoy, www.davidrevoy.com.
+
+Released under the Creative Commons Attribution 4.0 License, available here: https://creativecommons.org/licenses/by/4.0/
+
+Pepper and Carrot's adventures can be found at http://peppercarrot.com
+
+ComicSpice Font is available at https://github.com/Deevad/peppercarrot_fonts/tree/master/Web-ComicSpice
+licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: http://scripts.sil.org/OFL
+
+The sound effect are by Craig Maloney, and are released under a Creative Commons Attribution 4.0 license, available here: https://creativecommons.org/licenses/by/4.0/
