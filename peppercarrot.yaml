@@ -11,7 +11,7 @@ serial_port: /dev/ttyACM0
 
 photo_directory: "./photos"
 
-fullscreen: False
+fullscreen: True
 
 max_alpha: 150
 alpha_step: 10
