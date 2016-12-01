@@ -32,3 +32,24 @@ Doctor Who Theme:
 * Console Screen: http://girl-on-the-moon.deviantart.com/art/TARDIS-Monitor-Wallpaper-116295761
 
 Camera skeleton code from http://www.pygame.org/docs/tut/camera/CameraIntro.html
+
+
+pygame_photobooth hardware
+==========================
+
+Main components:
+* Computer running Ubuntu (or another Linux distribution)
+* V4L compatible web camera (we used a Logitech Web Cam)
+* External screen
+* 2+ shelf cart/stand
+  * The shelf we used is from IKEA, MULIG Shelf unit, black http://www.ikea.com/us/en/catalog/products/70241044/ 
+* we have mount with a standard tripod screw for the webcam which attaches to the pole for the monitor, this can be done differently based on your setup
+
+For the optional button:
+* The button we use is Large Arcade Button with LED - 60mm White https://www.adafruit.com/products/1192
+* Arduino (we have used Arduino Uno and Duemilanove but others should be compatible) 
+* Housing for button - we used a project box from an electronics store).
+  * The button and Arduino can be mounted in the same box with a cutout for the USB cable.
+* USB cable for Arduino 
+* Wire to connect the button to the Arduino
+* (optional, recommended) proto shield for Arduino and wire connectors to make the connection between button and Arduino more robust
