@@ -53,6 +53,8 @@ class Config():
             self.config['max_alpha'])
         self.alpha_step = (
             self.config['alpha_step'])
+        self.datetime_format = (
+            self.config['datetime_format'])
         self.theme_directory = (
             self.config['theme']['directory'])
         self.theme_overlay = (
@@ -118,7 +120,7 @@ class Status(pygame.sprite.Sprite):
         self.font = pygame.font.Font((config.theme_font), 40)
 
     def update(self):
-        text = datetime.now().strftime("%s")
+        text = datetime.now().strftime(config.datetime_format)
         base = self.font.render(str(text), 1, (0, 0, 0))
         self.image = base
         top = self.font.render(str(text), 1, (0x66, 0x88, 0xbb))

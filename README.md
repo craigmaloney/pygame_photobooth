@@ -22,6 +22,7 @@ The configuration file "config.yaml" has the default values in there for the app
 * ``fullscreen``: Whether to display fullscreen (default: True)
 * ``max_alpha``: Alpha range from 0-255, with 0 being invisible and 255 being completely opaque
 * ``alpha_step``: How quickly to remove the overlay. Larger numbers are faster. 0 will not display the overlay.
+* ``datetime_format``: String to send to datetime for displaying on-screen
 * ``theme``: Configuration specific to the theme
  * ``directory``: Where the theme is locted
  * ``overlay``: Image to overlay over the screen
