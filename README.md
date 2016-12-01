@@ -20,6 +20,8 @@ The configuration file "config.yaml" has the default values in there for the app
 * ``serial_port``: The port for the Arduino button (/dev/ttyUSB0 or /dev/ttyACM0)
 * ``photo_directory``: Where to store the photos (default: ./photos)
 * ``fullscreen``: Whether to display fullscreen (default: True)
+* ``max_alpha``: Alpha range from 0-255, with 0 being invisible and 255 being completely opaque
+* ``alpha_step``: How quickly to remove the overlay. Larger numbers are faster. 0 will not display the overlay.
 * ``theme``: Configuration specific to the theme
  * ``directory``: Where the theme is locted
  * ``overlay``: Image to overlay over the screen
