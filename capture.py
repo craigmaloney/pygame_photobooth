@@ -32,7 +32,7 @@ class Config():
 
         self.config = {}
 
-    def load(self, filename="./config.yaml"):
+    def load(self, filename="./peppercarrot.yaml"):
         fb = open(filename, 'rb')
         self.config = yaml.load(fb)
         self.camera_resolution = (
