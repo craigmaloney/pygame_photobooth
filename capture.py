@@ -190,12 +190,13 @@ class ConsoleOverlay(pygame.sprite.Sprite):
         self.dest_alpha_channel = self.max_alpha_channel
         self.counter = 0
         console_image = \
-            pygame.image.load(config.theme_overlay).convert()
+            pygame.image.load(config.theme_overlay).convert_alpha()
         self.image = pygame.transform.smoothscale(
             console_image, (config.camera_resolution))
 
         self.rect = self.image.get_rect()
         self.rect.topleft = ((0, 0))
+        self.dx = 0
 
     def update(self):
         if self.hideme is False and \
@@ -205,14 +206,19 @@ class ConsoleOverlay(pygame.sprite.Sprite):
                 self.current_alpha_channel > self.dest_alpha_channel:
             self.current_alpha_channel -= config.alpha_step
         self.image.set_alpha(self.current_alpha_channel)
+        x, y = self.rect.topleft
+        self.rect.topleft = (x + self.dx, y)
 
     def hide(self):
         self.hideme = True
         self.dest_alpha_channel = 0
+        self.dx = -10
 
     def attract(self):
         self.hideme = False
         self.dest_alpha_channel = self.max_alpha_channel
+        self.rect.topleft = ((0, 0))
+        self.dx = 0
 
 
 class Capture(object):
@@ -331,7 +337,7 @@ class Capture(object):
 
                 # Ninja photo
                 if (e.type == NINJA_SNAPSHOT):
-                    ninja_image = self.take_snapshot()
+                    self.take_snapshot()
                     pygame.time.set_timer(NINJA_SNAPSHOT, 0)
                     pygame.time.set_timer(ATTRACT_MODE, 1000)
 

@@ -11,7 +11,7 @@ serial_port: /dev/ttyACM0
 
 photo_directory: "./photos"
 
-fullscreen: True
+fullscreen: False
 
 max_alpha: 150
 alpha_step: 10
@@ -20,7 +20,7 @@ datetime_format: "%F %T"
 
 theme:
     directory: "./themes/peppercarrot"
-    overlay: 2016-06-05_pepper-and-carrot_happy-corner-screen_by-David-Revoy.png
+    overlay: 2016-06-05_pepper-and-carrot_happy-corner-screen.png
     attract_sound: bell2.wav
     font: ComicSpice.ttf
     countdown_sound: countdown.wav
