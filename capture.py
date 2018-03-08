@@ -199,26 +199,26 @@ class ConsoleOverlay(pygame.sprite.Sprite):
         self.dx = 0
 
     def update(self):
+        x, y = self.rect.topleft
         if self.hideme is False and \
                 self.current_alpha_channel <= self.dest_alpha_channel:
             self.current_alpha_channel += config.alpha_step
+            self.dx = 0
         if self.hideme is True and \
                 self.current_alpha_channel > self.dest_alpha_channel:
             self.current_alpha_channel -= config.alpha_step
+            self.dx += -1
         self.image.set_alpha(self.current_alpha_channel)
-        x, y = self.rect.topleft
         self.rect.topleft = (x + self.dx, y)
 
     def hide(self):
         self.hideme = True
         self.dest_alpha_channel = 0
-        self.dx = -10
 
     def attract(self):
         self.hideme = False
         self.dest_alpha_channel = self.max_alpha_channel
         self.rect.topleft = ((0, 0))
-        self.dx = 0
 
 
 class Capture(object):
