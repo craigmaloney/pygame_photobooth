@@ -20,7 +20,7 @@ datetime_format: "%F %T"
 
 theme:
     directory: "./themes/peppercarrot"
-    overlay: 2016-06-05_pepper-and-carrot_happy-corner-screen.png
+    overlay: 2016-06-05_pepper-and-carrot_happy-corner-screen_by-David-Revoy.png
     attract_sound: bell2.wav
     font: ComicSpice.ttf
     countdown_sound: countdown.wav
