@@ -3,7 +3,18 @@
 import os
 import pygame
 import pygame.camera
-from pygame.locals import *
+from pygame.locals import (
+        DOUBLEBUF,
+        FULLSCREEN,
+        HWSURFACE,
+        KEYDOWN,
+        RESIZABLE,
+        SRCALPHA,
+        USEREVENT,
+        K_ESCAPE,
+        K_SPACE,
+        QUIT
+)
 from datetime import datetime
 import serial
 import random
@@ -361,6 +372,7 @@ class Capture(object):
         # No longer going. Stop everything
         self.cam.stop()
         pygame.quit()
+
 
 if __name__ == "__main__":
     config = Config()
