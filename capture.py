@@ -40,50 +40,54 @@ def set_attract_noise_timer():
 
 class Config():
     def __init__(self):
-
+        self.default_dir = os.path.dirname(os.path.realpath(__file__))
+        self.default_filename = os.path.join(
+            self.default_dir,
+            'peppercarrot.yaml')
         self.config = {}
 
-    def load(self, filename="./peppercarrot.yaml"):
-        fb = open(filename, 'rb')
-        self.config = yaml.load(fb)
+    def load(self, filename=None):
+        __import__('pdb').set_trace()
+        if filename is None:
+            filename = self.default_filename
+        with open(filename, 'rb') as fb:
+            self.config = yaml.load(fb)
+
+        self.theme_directory = self.config['theme']['directory']
+        if os.path.abspath(self.theme_directory):
+            self.theme_directory = os.path.join(
+                self.default_dir,
+                self.theme_directory)
+        self.photo_directory = self.config['photo_directory']
+        if os.path.abspath(self.photo_directory):
+            self.photo_directory = os.path.join(
+                self.default_dir,
+                self.photo_directory)
+
         self.camera_resolution = (
             self.config['camera_resolution_x'],
             self.config['camera_resolution_y'])
         self.offscreen_resolution = (
             self.config['offscreen_resolution_x'],
             self.config['offscreen_resolution_y'])
-        self.serial_port = (
-            self.config['serial_port'])
-        self.serial_button = (
-            self.config['serial_button'])
-        self.photo_directory = (
-            self.config['photo_directory'])
-        self.fullscreen = (
-            self.config['fullscreen'])
-        self.max_alpha = (
-            self.config['max_alpha'])
-        self.alpha_step = (
-            self.config['alpha_step'])
-        self.datetime_format = (
-            self.config['datetime_format'])
-        self.theme_directory = (
-            self.config['theme']['directory'])
-        self.theme_overlay = (
-            os.path.join(
-                self.theme_directory,
-                self.config['theme']['overlay']))
-        self.theme_attract_sound = (
-            os.path.join(
-                self.theme_directory,
-                self.config['theme']['attract_sound']))
-        self.theme_font = (
-            os.path.join(
-                self.theme_directory,
-                self.config['theme']['font']))
-        self.theme_countdown_sound = (
-            os.path.join(
-                self.theme_directory,
-                self.config['theme']['countdown_sound']))
+        self.serial_port = self.config['serial_port']
+        self.serial_button = self.config['serial_button']
+        self.fullscreen = self.config['fullscreen']
+        self.max_alpha = self.config['max_alpha']
+        self.alpha_step = self.config['alpha_step']
+        self.datetime_format = self.config['datetime_format']
+        self.theme_overlay = os.path.join(
+            self.theme_directory,
+            self.config['theme']['overlay'])
+        self.theme_attract_sound = os.path.join(
+            self.theme_directory,
+            self.config['theme']['attract_sound'])
+        self.theme_font = os.path.join(
+            self.theme_directory,
+            self.config['theme']['font'])
+        self.theme_countdown_sound = os.path.join(
+            self.theme_directory,
+            self.config['theme']['countdown_sound'])
 
 
 class Counter(pygame.sprite.Sprite):
@@ -120,7 +124,6 @@ class Counter(pygame.sprite.Sprite):
 
 
 class Status(pygame.sprite.Sprite):
-
     def __init__(self):
         pygame.sprite.Sprite.__init__(self, self.containers)
 
@@ -145,7 +148,6 @@ class Status(pygame.sprite.Sprite):
 
 
 class Flash(pygame.sprite.Sprite):
-
     def __init__(self):
         self.countdown = 255
         pygame.sprite.Sprite.__init__(self, self.containers)
