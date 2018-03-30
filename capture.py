@@ -283,7 +283,7 @@ class Capture(object):
 
     def main(self):
         clock = pygame.time.Clock()
-        going = True
+        running = True
 
         counter = pygame.sprite.Group()
         flash = pygame.sprite.Group()
@@ -307,7 +307,7 @@ class Capture(object):
         set_attract_noise_timer()
         countdown_in_progress = False
 
-        while going:
+        while running:
             if config.serial_button:
                 if serial_port.inWaiting() > 0:
                     serial_input = serial_port.readline().strip()
@@ -318,7 +318,7 @@ class Capture(object):
             for e in events:
                 if e.type == QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
                     # close the camera safely
-                    going = False
+                    running = False
                 if (e.type == ARDUINO_PRESS) or \
                         (e.type == KEYDOWN and e.key == K_SPACE):
                     if (countdown_in_progress is False):
@@ -371,7 +371,7 @@ class Capture(object):
             self.get_and_flip(all)
             clock.tick(30)
 
-        # No longer going. Stop everything
+        # No longer running. Stop everything
         self.cam.stop()
         pygame.quit()
 
