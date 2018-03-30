@@ -47,7 +47,6 @@ class Config():
         self.config = {}
 
     def load(self, filename=None):
-        __import__('pdb').set_trace()
         if filename is None:
             filename = self.default_filename
         with open(filename, 'rb') as fb:
