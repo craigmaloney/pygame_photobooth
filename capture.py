@@ -3,7 +3,18 @@
 import os
 import pygame
 import pygame.camera
-from pygame.locals import *
+from pygame.locals import (
+        DOUBLEBUF,
+        FULLSCREEN,
+        HWSURFACE,
+        KEYDOWN,
+        RESIZABLE,
+        SRCALPHA,
+        USEREVENT,
+        K_ESCAPE,
+        K_SPACE,
+        QUIT
+)
 from datetime import datetime
 import serial
 import random
@@ -29,44 +40,53 @@ def set_attract_noise_timer():
 
 class Config():
     def __init__(self):
-
+        self.default_dir = os.path.dirname(os.path.realpath(__file__))
+        self.default_filename = os.path.join(
+            self.default_dir,
+            'peppercarrot.yaml')
         self.config = {}
 
-    def load(self, filename="./config.yaml"):
-        fb = open(filename, 'rb')
-        self.config = yaml.load(fb)
+    def load(self, filename=None):
+        if filename is None:
+            filename = self.default_filename
+        with open(filename, 'rb') as fb:
+            self.config = yaml.load(fb)
+
+        self.theme_directory = self.config['theme']['directory']
+        if os.path.abspath(self.theme_directory):
+            self.theme_directory = os.path.join(
+                self.default_dir,
+                self.theme_directory)
+        self.photo_directory = self.config['photo_directory']
+        if os.path.abspath(self.photo_directory):
+            self.photo_directory = os.path.join(
+                self.default_dir,
+                self.photo_directory)
+
         self.camera_resolution = (
             self.config['camera_resolution_x'],
             self.config['camera_resolution_y'])
         self.offscreen_resolution = (
             self.config['offscreen_resolution_x'],
             self.config['offscreen_resolution_y'])
-        self.serial_port = (
-            self.config['serial_port'])
-        self.serial_button = (
-            self.config['serial_button'])
-        self.photo_directory = (
-            self.config['photo_directory'])
-        self.fullscreen = (
-            self.config['fullscreen'])
-        self.theme_directory = (
-            self.config['theme']['directory'])
-        self.theme_overlay = (
-            os.path.join(
-                self.theme_directory,
-                self.config['theme']['overlay']))
-        self.theme_attract_sound = (
-            os.path.join(
-                self.theme_directory,
-                self.config['theme']['attract_sound']))
-        self.theme_font = (
-            os.path.join(
-                self.theme_directory,
-                self.config['theme']['font']))
-        self.theme_countdown_sound = (
-            os.path.join(
-                self.theme_directory,
-                self.config['theme']['countdown_sound']))
+        self.serial_port = self.config['serial_port']
+        self.serial_button = self.config['serial_button']
+        self.fullscreen = self.config['fullscreen']
+        self.max_alpha = self.config['max_alpha']
+        self.alpha_step = self.config['alpha_step']
+        self.datetime_format = self.config['datetime_format']
+        self.theme_overlay = os.path.join(
+            self.theme_directory,
+            self.config['theme']['overlay'])
+        self.theme_attract_sound = os.path.join(
+            self.theme_directory,
+            self.config['theme']['attract_sound'])
+        self.theme_font = os.path.join(
+            self.theme_directory,
+            self.config['theme']['font'])
+        self.theme_countdown_sound = os.path.join(
+            self.theme_directory,
+            self.config['theme']['countdown_sound'])
 
 
 class Counter(pygame.sprite.Sprite):
@@ -103,7 +123,6 @@ class Counter(pygame.sprite.Sprite):
 
 
 class Status(pygame.sprite.Sprite):
-
     def __init__(self):
         pygame.sprite.Sprite.__init__(self, self.containers)
 
@@ -114,7 +133,7 @@ class Status(pygame.sprite.Sprite):
         self.font = pygame.font.Font((config.theme_font), 40)
 
     def update(self):
-        text = datetime.now().strftime("%s")
+        text = datetime.now().strftime(config.datetime_format)
         base = self.font.render(str(text), 1, (0, 0, 0))
         self.image = base
         top = self.font.render(str(text), 1, (0x66, 0x88, 0xbb))
@@ -128,7 +147,6 @@ class Status(pygame.sprite.Sprite):
 
 
 class Flash(pygame.sprite.Sprite):
-
     def __init__(self):
         self.countdown = 255
         pygame.sprite.Sprite.__init__(self, self.containers)
@@ -180,25 +198,30 @@ class ConsoleOverlay(pygame.sprite.Sprite):
 
         self.hideme = False
         self.current_alpha_channel = 0
-        self.max_alpha_channel = 60
+        self.max_alpha_channel = config.max_alpha
         self.dest_alpha_channel = self.max_alpha_channel
         self.counter = 0
         console_image = \
-            pygame.image.load(config.theme_overlay).convert()
+            pygame.image.load(config.theme_overlay).convert_alpha()
         self.image = pygame.transform.smoothscale(
             console_image, (config.camera_resolution))
 
         self.rect = self.image.get_rect()
         self.rect.topleft = ((0, 0))
+        self.dx = 0
 
     def update(self):
+        x, y = self.rect.topleft
         if self.hideme is False and \
                 self.current_alpha_channel <= self.dest_alpha_channel:
-            self.current_alpha_channel += 1
+            self.current_alpha_channel += config.alpha_step
+            self.dx = 0
         if self.hideme is True and \
                 self.current_alpha_channel > self.dest_alpha_channel:
-            self.current_alpha_channel -= 1
+            self.current_alpha_channel -= config.alpha_step
+            self.dx += -1
         self.image.set_alpha(self.current_alpha_channel)
+        self.rect.topleft = (x + self.dx, y)
 
     def hide(self):
         self.hideme = True
@@ -207,6 +230,7 @@ class ConsoleOverlay(pygame.sprite.Sprite):
     def attract(self):
         self.hideme = False
         self.dest_alpha_channel = self.max_alpha_channel
+        self.rect.topleft = ((0, 0))
 
 
 class Capture(object):
@@ -258,7 +282,7 @@ class Capture(object):
 
     def main(self):
         clock = pygame.time.Clock()
-        going = True
+        running = True
 
         counter = pygame.sprite.Group()
         flash = pygame.sprite.Group()
@@ -282,7 +306,7 @@ class Capture(object):
         set_attract_noise_timer()
         countdown_in_progress = False
 
-        while going:
+        while running:
             if config.serial_button:
                 if serial_port.inWaiting() > 0:
                     serial_input = serial_port.readline().strip()
@@ -293,7 +317,7 @@ class Capture(object):
             for e in events:
                 if e.type == QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
                     # close the camera safely
-                    going = False
+                    running = False
                 if (e.type == ARDUINO_PRESS) or \
                         (e.type == KEYDOWN and e.key == K_SPACE):
                     if (countdown_in_progress is False):
@@ -325,7 +349,7 @@ class Capture(object):
 
                 # Ninja photo
                 if (e.type == NINJA_SNAPSHOT):
-                    ninja_image = self.take_snapshot()
+                    self.take_snapshot()
                     pygame.time.set_timer(NINJA_SNAPSHOT, 0)
                     pygame.time.set_timer(ATTRACT_MODE, 1000)
 
@@ -346,9 +370,10 @@ class Capture(object):
             self.get_and_flip(all)
             clock.tick(30)
 
-        # No longer going. Stop everything
+        # No longer running. Stop everything
         self.cam.stop()
         pygame.quit()
+
 
 if __name__ == "__main__":
     config = Config()
