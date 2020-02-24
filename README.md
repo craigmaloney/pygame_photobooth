@@ -3,15 +3,33 @@ pygame_photobooth
 
 Rough Pygame Photobooth (but it's getting better)
 
+Installation
+-------------
+
 You'll need to install the following (preferably as system packages):
 
 * Pygame
- * libsdl-mixer
- * libsdl-ttf
+* libsdl-mixer
+* libsdl-ttf
+* PyYAML
+* pyserial
+
+Under Ubuntu these packages will cover the above requirements:
+
+* pygame
+* python-yaml
+* python-serial
+
+Arduino
+-------
 
 The Arduino code sends a "Pressed!" event over the serial port. If you have configured the photo booth to accept input from the serial port you will need to ensure the program has access to the serial port.
 * Arduino UNO shows up under /dev/ttyACM0. You'll need to add your user to the "dialout" group
 * Arduino Duemilanove shows up under /dev/ttyUSB0.
+
+
+Configuration
+-------------
 
 The configuration file "config.yaml" has the default values in there for the application:
 * ``camera_resolution_x/y``: The resolution of the camera hooked up
@@ -38,7 +56,7 @@ Camera skeleton code from http://www.pygame.org/docs/tut/camera/CameraIntro.html
 
 
 pygame_photobooth hardware
-==========================
+--------------------------
 
 Main components:
 * Computer running Ubuntu (or another Linux distribution)
